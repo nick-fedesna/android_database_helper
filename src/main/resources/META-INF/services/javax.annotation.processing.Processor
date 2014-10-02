@@ -1,1 +1,1 @@
-com.vokal.db.compiler.DataModelProcessor
+com.vokal.codegen.processor.ModelProcessor

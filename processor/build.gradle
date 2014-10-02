@@ -1,0 +1,17 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}
+
+repositories{
+    mavenCentral()
+    jcenter()
+}
+
+apply plugin: 'java'
+
+dependencies {
+    compile 'com.google.guava:guava:15.0'
+}

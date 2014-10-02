@@ -1,63 +1,64 @@
 package com.vokal.db.test;
 
 
-import android.content.ContentValues;
-
+import com.vokal.codegen.Column;
 import com.vokal.db.AbstractDataModel;
-import com.vokal.db.GenerateHelpers;
-import com.vokal.db.SQLiteTable;
-import com.vokal.db.util.CursorCreator;
-import com.vokal.db.util.CursorGetter;
 
-@GenerateHelpers
 public class Test2Model extends AbstractDataModel {
 
-    public static final SQLiteTable.TableCreator TABLE_CREATOR = new Test2ModelHelpers.TableCreator() {
+    @Column String string1;
+    @Column boolean boolean1;
+    @Column int int1;
+    @Column long long1;
+    @Column double double1;
 
-        @Override
-        public SQLiteTable buildTableSchema(SQLiteTable.Builder aBuilder) {
 
-            aBuilder.addStringColumn(COL_STRING)
-                    .addIntegerColumn(COL_BOOLEAN)
-                    .addIntegerColumn(COL_LONG)
-                    .addIntegerColumn(COL_INT).unique().autoincrement()
-                    .addIntegerColumn(COL_DOUBLE);
-
-            return aBuilder.build();
-        }
-
-        @Override
-        public SQLiteTable updateTableSchema(SQLiteTable.Updater aUpdater, int aOldVersion) {
-            return null;
-        }
-    };
-
-    public static final CursorCreator<Test2Model> CURSOR_CREATOR = new CursorCreator<Test2Model>() {
-        public Test2Model createFromCursorGetter(CursorGetter getter) {
-            Test2Model model = new Test2Model();
-            model.boolean1 = getter.getBoolean(COL_BOOLEAN);
-            model.double1 = getter.getDouble(COL_DOUBLE);
-            model.string1 = getter.getString(COL_STRING);
-            model.long1 = getter.getLong(COL_LONG);
-            model.int1 = getter.getInt(COL_INT);
-            model._id = getter.getLong("_id");
-
-            return model;
-        }
-    };
-
-    public static final String COL_STRING  = "string1";
-    public static final String COL_BOOLEAN = "boolean1";
-    public static final String COL_INT     = "int1";
-    public static final String COL_LONG    = "long1";
-    public static final String COL_DOUBLE  = "double1";
-
-    private String  string1;
-    private boolean boolean1;
-    private int     int1;
-    private long    long1;
-    private double  double1;
-
+//    public static final SQLiteTable.TableCreator TABLE_CREATOR = new Test2Model.TableCreator() {
+//
+//        @Override
+//        public SQLiteTable buildTableSchema(SQLiteTable.Builder aBuilder) {
+//
+//            aBuilder.addStringColumn(COL_STRING)
+//                    .addIntegerColumn(COL_BOOLEAN)
+//                    .addIntegerColumn(COL_LONG)
+//                    .addIntegerColumn(COL_INT).unique().autoincrement()
+//                    .addIntegerColumn(COL_DOUBLE);
+//
+//            return aBuilder.build();
+//        }
+//
+//        @Override
+//        public SQLiteTable updateTableSchema(SQLiteTable.Updater aUpdater, int aOldVersion) {
+//            return null;
+//        }
+//    };
+//
+//    public static final CursorCreator<Test2Model> CURSOR_CREATOR = new CursorCreator<Test2Model>() {
+//        public Test2Model createFromCursorGetter(CursorGetter getter) {
+//            Test2Model model = new Test2Model();
+//            model.boolean1 = getter.getBoolean(COL_BOOLEAN);
+//            model.double1 = getter.getDouble(COL_DOUBLE);
+//            model.string1 = getter.getString(COL_STRING);
+//            model.long1 = getter.getLong(COL_LONG);
+//            model.int1 = getter.getInt(COL_INT);
+//            model._id = getter.getLong("_id");
+//
+//            return model;
+//        }
+//    };
+//
+//    public static final String COL_STRING  = "string1";
+//    public static final String COL_BOOLEAN = "boolean1";
+//    public static final String COL_INT     = "int1";
+//    public static final String COL_LONG    = "long1";
+//    public static final String COL_DOUBLE  = "double1";
+//
+//    private String  string1;
+//    private boolean boolean1;
+//    private int     int1;
+//    private long    long1;
+//    private double  double1;
+//
     public long getId() {
         return _id;
     }
@@ -105,15 +106,15 @@ public class Test2Model extends AbstractDataModel {
     public void setDouble1(double double1) {
         this.double1 = double1;
     }
-
-
-    @Override
-    public void populateContentValues(ContentValues aValues) {
-        aValues.put(COL_STRING, string1);
-        aValues.put(COL_BOOLEAN, boolean1);
-        aValues.put(COL_INT, int1);
-        aValues.put(COL_LONG, long1);
-        aValues.put(COL_DOUBLE, double1);
-        super.populateContentValues(aValues);
-    }
+//
+//
+//    @Override
+//    public void populateContentValues(ContentValues aValues) {
+//        aValues.put(COL_STRING, string1);
+//        aValues.put(COL_BOOLEAN, boolean1);
+//        aValues.put(COL_INT, int1);
+//        aValues.put(COL_LONG, long1);
+//        aValues.put(COL_DOUBLE, double1);
+//        super.populateContentValues(aValues);
+//    }
 }

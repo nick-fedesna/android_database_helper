@@ -1,7 +1,0 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
-apply plugin: 'java'
