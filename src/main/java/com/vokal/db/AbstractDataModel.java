@@ -38,7 +38,7 @@ public abstract class AbstractDataModel implements BaseColumns, Parcelable {
         return hasId() ? ContentUris.withAppendedId(getContentUri(), _id) : null;
     }
 
-    protected boolean hasId() {
+    public boolean hasId() {
         return _id != null && _id != UNDEFINED;
     }
 

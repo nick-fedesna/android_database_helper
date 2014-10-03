@@ -47,8 +47,6 @@ public abstract class AbsWriter {
                 "public class " + helperClassName + " implements ModelHelper, BaseColumns {",
                 mEnclosingClass.getClassName() + " m" + mEnclosingClass.getClassName() + ";",
                 "",
-                "protected transient Long _id = -1L;",
-                "",
                 emitStaticStrings(annotatedFields),
                 "",
                 emitPopulateContentValue(annotatedFields),
@@ -59,7 +57,6 @@ public abstract class AbsWriter {
                 "",
                 emitSetObject(annotatedFields),
                 "",
-                "protected boolean hasId() {\nreturn _id != null && _id != -1;\n}",
                 "}"
         );
     }
@@ -121,7 +118,7 @@ public abstract class AbsWriter {
 
     private String emitPopulateContentValue(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("@Override\npublic void populateContentValues(ContentValues aValues) {\nif (hasId()) aValues.put(_ID, _id);\n");
+        builder.append("@Override\npublic void populateContentValues(ContentValues aValues) {\nif (m"  + mEnclosingClass.getClassName() + ".hasId()) aValues.put(_ID, m"+ mEnclosingClass.getClassName() +".getId());\n");
         for (AnnotatedField annotatedField : annotatedFields) {
             builder.append(emitSetters(annotatedField));
         }
