@@ -2,9 +2,9 @@ package com.vokal.db.test;
 
 
 import com.vokal.codegen.Column;
-import com.vokal.db.codegen.SuperClass;
+import com.vokal.db.codegen.DataModel;
 
-public class TestModel extends SuperClass {
+public class TestModel extends DataModel {
 
     @Column String  string1;
     @Column boolean boolean1;

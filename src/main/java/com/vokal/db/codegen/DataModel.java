@@ -9,11 +9,11 @@ import com.vokal.db.SQLiteTable;
 import com.vokal.db.util.CursorCreator;
 import com.vokal.db.util.CursorGetter;
 
-public class SuperClass extends AbstractDataModel implements Model {
+public class DataModel extends AbstractDataModel implements Model {
 
     ModelHelper mClass;
 
-    public SuperClass() {
+    public DataModel() {
         try {
             Log.e("HERE", getClass().getName() + "Helper");
             mClass = ((ModelHelper) Class.forName(getClass().getName() + "Helper").newInstance());
