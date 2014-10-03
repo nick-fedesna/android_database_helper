@@ -18,14 +18,16 @@ public class CodeGenWriter {
         this.mEnclosingClass = enclosingClass;
     }
 
-    public void withFields(Collection<AnnotatedField> annotatedFields) throws IOException {
+    public void withFields(Collection<AnnotatedField> annotatedColumnFields,
+                           Collection<AnnotatedField> annotatedUniqueFields) throws IOException {
         java.io.Writer writer = mJavaFileObject.openWriter();
-        writer.write(brewJava(annotatedFields));
+        writer.write(brewJava(annotatedColumnFields, annotatedUniqueFields));
         writer.flush();
         writer.close();
     }
 
-    private String brewJava(Collection<AnnotatedField> annotatedFields) {
+    private String brewJava(Collection<AnnotatedField> annotatedColumnFields,
+                            Collection<AnnotatedField> annotatedUniqueFields) {
         String classPackage = mEnclosingClass.getClassPackage();
         String helperClassName = mEnclosingClass.getClassName() + mSuffix;
 
@@ -41,14 +43,14 @@ public class CodeGenWriter {
                 "public class " + helperClassName + " implements ModelHelper, BaseColumns {",
                 "\t" + mEnclosingClass.getClassName() + " m" + mEnclosingClass.getClassName() + ";",
                 "",
-                emitStaticStrings(annotatedFields),
-                emitPopulateContentValue(annotatedFields),
+                emitStaticStrings(annotatedColumnFields),
+                emitPopulateContentValue(annotatedColumnFields),
                 "",
-                emitTableCreator(annotatedFields),
+                emitTableCreator(annotatedColumnFields, annotatedUniqueFields),
                 "",
-                emitCursorCreator(annotatedFields),
+                emitCursorCreator(annotatedColumnFields),
                 "",
-                emitSetObject(annotatedFields),
+                emitSetObject(),
                 "",
                 "}"
         );
@@ -56,12 +58,10 @@ public class CodeGenWriter {
 
     private String emitCursorCreator(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("\tpublic static final CursorCreator<").append(mEnclosingClass.getClassName()).append(
-                "> CURSOR_CREATOR = new CursorCreator<").append(mEnclosingClass.getClassName()).append(
-                ">() {\n").append("\t\tpublic ").append(mEnclosingClass.getClassName()).append(
-                " createFromCursorGetter(CursorGetter getter) {\n").append("\t\t\t").append(
-                mEnclosingClass.getClassName()).append(" model = new ").append(mEnclosingClass.getClassName()).append(
-                "();\n");
+        builder.append(
+                "\tpublic static final CursorCreator<" + mEnclosingClass.getClassName() + "> CURSOR_CREATOR = new CursorCreator<" + mEnclosingClass.getClassName() + ">() {\n" +
+                        "\t\tpublic " + mEnclosingClass.getClassName() + " createFromCursorGetter(CursorGetter getter) {\n" +
+                        "\t\t\t" + mEnclosingClass.getClassName() + " model = new " + mEnclosingClass.getClassName() + "();\n");
         for (AnnotatedField annotatedField : annotatedFields) {
             builder.append("\t\t\tmodel." + annotatedField.getName() + " = getter.get" + firstLetterToUpper(annotatedField.getSimpleType()) + "(" + annotatedField.getName().toUpperCase() + ");\n");
         }
@@ -71,20 +71,15 @@ public class CodeGenWriter {
         return builder.toString();
     }
 
-    protected String emitTableCreator(Collection<AnnotatedField> annotatedFields) {
+    protected String emitTableCreator(Collection<AnnotatedField> annotatedFields,
+                                      Collection<AnnotatedField> annotatedUniqueFields) {
         StringBuilder builder = new StringBuilder();
         builder.append("\tpublic static final SQLiteTable.TableCreator TABLE_CREATOR = new SQLiteTable.TableCreator() {\n" +
                        "\t\t@Override\n" +
                        "\t\tpublic SQLiteTable buildTableSchema(SQLiteTable.Builder aBuilder) {\n\t\t\taBuilder\n");
         for (AnnotatedField annotatedField : annotatedFields) {
-            if (annotatedField.getSimpleType().equals("boolean") || annotatedField.getSimpleType().equals("int") || annotatedField.getSimpleType().equals("long")) {
-                builder.append("\t\t\t.add" + "IntegerColumn(" + annotatedField.getName().toUpperCase() + ")\n");
-            } else if (annotatedField.getSimpleType().equals("double") || annotatedField.getSimpleType().equals("float")) {
-                builder.append("\t\t\t.add" + "RealColumn(" + annotatedField.getName().toUpperCase() + ")\n");
-            } else {
-                builder.append("\t\t\t.add" + firstLetterToUpper(
-                        annotatedField.getSimpleType()) + "Column(" + annotatedField.getName().toUpperCase() + ")\n");
-            }
+            builder.append(emitTableBuilder(annotatedField, (annotatedUniqueFields != null)
+                                                                && annotatedUniqueFields.contains(annotatedField)));
         }
         builder.append("\t\t\t;\n\t\t\treturn aBuilder.build();\n\t\t}\n\n");
         builder.append("\t\t@Override\n" +
@@ -95,6 +90,21 @@ public class CodeGenWriter {
         return builder.toString();
     }
 
+    private String emitTableBuilder(AnnotatedField annotatedField, boolean contains) {
+        String addColumn = "";
+        if (annotatedField.getSimpleType().equals("boolean") || annotatedField.getSimpleType().equals("int") || annotatedField.getSimpleType().equals("long")) {
+            addColumn = "\t\t\t.add" + "IntegerColumn(" + annotatedField.getName().toUpperCase() + ")";
+        } else if (annotatedField.getSimpleType().equals("double") || annotatedField.getSimpleType().equals("float")) {
+            addColumn = "\t\t\t.add" + "RealColumn(" + annotatedField.getName().toUpperCase() + ")";
+        } else {
+            addColumn = "\t\t\t.add" + firstLetterToUpper(
+                    annotatedField.getSimpleType()) + "Column(" + annotatedField.getName().toUpperCase() + ")";
+        }
+
+        return (contains) ? (addColumn + ".unique()\n") : (addColumn + "\n");
+
+    }
+
     private String  emitStaticStrings(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
         for (AnnotatedField annotatedField : annotatedFields) {
@@ -103,7 +113,7 @@ public class CodeGenWriter {
         return builder.toString();
     }
 
-    private String emitSetObject(Collection<AnnotatedField> annotatedFields) {
+    private String emitSetObject() {
         StringBuilder builder = new StringBuilder();
         builder.append("\t@Override public void setObject(Object a) {\n" +
                        "\t\tm" + mEnclosingClass.getClassName() + " = ((" + mEnclosingClass.getClassName() + ") a);\n");

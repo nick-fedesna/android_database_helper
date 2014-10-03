@@ -17,23 +17,36 @@ public class ModelProcessor extends AbstractProcessor {
 
     public static final String SUFFIX = "Helper";
 
+    private TypeElement mUniqueAnnotation;
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         System.out.println("******************* PRE COMPILER ********************");
 
         for (TypeElement annotation : annotations) {
-            write(classesWithFieldsAnnotatedWith(roundEnv.getElementsAnnotatedWith(annotation)));
+            if (annotation.getQualifiedName().toString().equals("com.vokal.codegen.Unique")) {
+                mUniqueAnnotation = annotation;
+            }
+        }
+
+        for (TypeElement annotation : annotations) {
+            if (annotation.getQualifiedName().toString().equals("com.vokal.codegen.Column")) {
+                write(classesWithFieldsAnnotatedWith(roundEnv.getElementsAnnotatedWith(annotation)),
+                      classesWithFieldsAnnotatedWith(roundEnv.getElementsAnnotatedWith(mUniqueAnnotation)));
+            }
         }
 
         return true;
     }
 
-    private void write(Map<EnclosingClass, Collection<AnnotatedField>> fieldsByEnclosingClass) {
+    private void write(Map<EnclosingClass, Collection<AnnotatedField>> columnFieldsByEnclosingClass,
+                       Map<EnclosingClass, Collection<AnnotatedField>> uniqueFieldsByEnclosingClass) {
         WriterFactory writerFactory = new WriterFactory(filer(), SUFFIX);
-        for (EnclosingClass enclosingClass : fieldsByEnclosingClass.keySet()) {
+        for (EnclosingClass enclosingClass : columnFieldsByEnclosingClass.keySet()) {
             try {
                 writerFactory.writeClass(enclosingClass)
-                        .withFields(fieldsByEnclosingClass.get(enclosingClass));
+                        .withFields(columnFieldsByEnclosingClass.get(enclosingClass),
+                                    uniqueFieldsByEnclosingClass.get(enclosingClass));
             } catch (IOException e) {
                 messager().printMessage(Diagnostic.Kind.ERROR,
                                         "Error generating helper for class " + enclosingClass.getClassName()

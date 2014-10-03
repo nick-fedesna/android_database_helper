@@ -31,4 +31,9 @@ public class AnnotatedField {
     public TypeElement getEnclosingClassType() {
         return mEnclosingClassType;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((AnnotatedField) obj).getName().equals(mName);
+    }
 }
