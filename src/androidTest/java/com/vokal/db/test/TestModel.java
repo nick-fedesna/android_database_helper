@@ -6,11 +6,11 @@ import com.vokal.db.codegen.SuperClass;
 
 public class TestModel extends SuperClass {
 
-        @Column public String  string1;
-        @Column public boolean boolean1;
-        @Column public int     int1;
-        @Column public long    long1;
-        @Column public double  double1;
+    @Column String  string1;
+    @Column boolean boolean1;
+    @Column int     int1;
+    @Column long    long1;
+    @Column double  double1;
 
     public long getId() {
         return _id;

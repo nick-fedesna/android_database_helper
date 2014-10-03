@@ -45,10 +45,9 @@ public abstract class AbsWriter {
                 "import com.vokal.db.codegen.ModelHelper;",
                 "import android.provider.BaseColumns;",
                 "public class " + helperClassName + " implements ModelHelper, BaseColumns {",
-                mEnclosingClass.getClassName() + " m" + mEnclosingClass.getClassName() + ";",
+                "\t" + mEnclosingClass.getClassName() + " m" + mEnclosingClass.getClassName() + ";",
                 "",
                 emitStaticStrings(annotatedFields),
-                "",
                 emitPopulateContentValue(annotatedFields),
                 "",
                 emitTableCreator(annotatedFields),
@@ -63,39 +62,38 @@ public abstract class AbsWriter {
 
     private String emitCursorCreator(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("    public static final CursorCreator<" + mEnclosingClass.getClassName() + "> CURSOR_CREATOR = new CursorCreator<" + mEnclosingClass.getClassName() + ">() {\n" +
-                               "        public " + mEnclosingClass.getClassName() + " createFromCursorGetter(CursorGetter getter) {\n" +
-                               "       " + mEnclosingClass.getClassName() + " model = new " + mEnclosingClass.getClassName() + "();\n");
+        builder.append("\tpublic static final CursorCreator<" + mEnclosingClass.getClassName() + "> CURSOR_CREATOR = new CursorCreator<" + mEnclosingClass.getClassName() + ">() {\n" +
+                       "\t\tpublic " + mEnclosingClass.getClassName() + " createFromCursorGetter(CursorGetter getter) {\n" +
+                       "\t\t\t" + mEnclosingClass.getClassName() + " model = new " + mEnclosingClass.getClassName() + "();\n");
         for (AnnotatedField annotatedField : annotatedFields) {
-            builder.append("model." + annotatedField.getName() + " = getter.get" + firstLetterToUpper(annotatedField.getSimpleType()) + "(" + annotatedField.getName().toUpperCase() + ");\n");
+            builder.append("\t\t\tmodel." + annotatedField.getName() + " = getter.get" + firstLetterToUpper(annotatedField.getSimpleType()) + "(" + annotatedField.getName().toUpperCase() + ");\n");
         }
-        builder.append("model.setId(getter.getLong(_ID));\n");
-        builder.append("return model;\n}\n};\n");
+        builder.append("\t\t\tmodel.setId(getter.getLong(_ID));\n");
+        builder.append("\t\t\treturn model;\n\t\t}\n\t};");
 
         return builder.toString();
     }
 
     protected String emitTableCreator(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("    public static final SQLiteTable.TableCreator TABLE_CREATOR = new SQLiteTable.TableCreator() {\n" +
-                               "\n" +
-                               "        @Override\n" +
-                               "        public SQLiteTable buildTableSchema(SQLiteTable.Builder aBuilder) {\naBuilder");
+        builder.append("\tpublic static final SQLiteTable.TableCreator TABLE_CREATOR = new SQLiteTable.TableCreator() {\n" +
+                       "\t\t@Override\n" +
+                       "\t\tpublic SQLiteTable buildTableSchema(SQLiteTable.Builder aBuilder) {\n\t\t\taBuilder\n");
         for (AnnotatedField annotatedField : annotatedFields) {
             if (annotatedField.getSimpleType().equals("boolean") || annotatedField.getSimpleType().equals("int") || annotatedField.getSimpleType().equals("long")) {
-                builder.append(".add" + "IntegerColumn(" + annotatedField.getName().toUpperCase() + ")\n");
+                builder.append("\t\t\t.add" + "IntegerColumn(" + annotatedField.getName().toUpperCase() + ")\n");
             } else if (annotatedField.getSimpleType().equals("double") || annotatedField.getSimpleType().equals("float")) {
-                builder.append(".add" + "RealColumn(" + annotatedField.getName().toUpperCase() + ")\n");
+                builder.append("\t\t\t.add" + "RealColumn(" + annotatedField.getName().toUpperCase() + ")\n");
             } else {
-                builder.append(".add" + firstLetterToUpper(
+                builder.append("\t\t\t.add" + firstLetterToUpper(
                         annotatedField.getSimpleType()) + "Column(" + annotatedField.getName().toUpperCase() + ")\n");
             }
         }
-        builder.append(";\nreturn aBuilder.build();\n}\n");
-        builder.append("        @Override\n" +
-                               "        public SQLiteTable updateTableSchema(SQLiteTable.Updater aUpdater, int aOldVersion) {\n" +
-                               "            return aUpdater.recreate();\n" +
-                               "        }\n};\n");
+        builder.append("\t\t\t;\n\t\t\treturn aBuilder.build();\n\t\t}\n\n");
+        builder.append("\t\t@Override\n" +
+                       "\t\tpublic SQLiteTable updateTableSchema(SQLiteTable.Updater aUpdater, int aOldVersion) {\n" +
+                       "\t\t\treturn aUpdater.recreate();\n" +
+                       "\t\t}\n\t};");
 
         return builder.toString();
     }
@@ -103,31 +101,31 @@ public abstract class AbsWriter {
     private String  emitStaticStrings(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
         for (AnnotatedField annotatedField : annotatedFields) {
-        builder.append("private static final String " + annotatedField.getName().toUpperCase() + " = \"" + annotatedField.getName().toLowerCase() + "\";\n");
+            builder.append("\tprivate static final String " + annotatedField.getName().toUpperCase() + " = \"" + annotatedField.getName().toLowerCase() + "\";\n");
         }
         return builder.toString();
     }
 
     private String emitSetObject(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("@Override public void setObject(Object a) {\n" +
-                       "m" + mEnclosingClass.getClassName() + " = ((" + mEnclosingClass.getClassName() + ") a);\n");
-        builder.append("}");
+        builder.append("\t@Override public void setObject(Object a) {\n" +
+                       "\t\tm" + mEnclosingClass.getClassName() + " = ((" + mEnclosingClass.getClassName() + ") a);\n");
+        builder.append("\t}");
         return builder.toString();
     }
 
     private String emitPopulateContentValue(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("@Override\npublic void populateContentValues(ContentValues aValues) {\nif (m"  + mEnclosingClass.getClassName() + ".hasId()) aValues.put(_ID, m"+ mEnclosingClass.getClassName() +".getId());\n");
+        builder.append("\t@Override\n\tpublic void populateContentValues(ContentValues aValues) {\n\t\tif (m"  + mEnclosingClass.getClassName() + ".hasId()) aValues.put(_ID, m"+ mEnclosingClass.getClassName() +".getId());\n");
         for (AnnotatedField annotatedField : annotatedFields) {
             builder.append(emitSetters(annotatedField));
         }
-        builder.append("}");
+        builder.append("\t}");
         return builder.toString();
     }
 
     private String emitSetters(AnnotatedField annotatedField) {
-        return "aValues.put("+annotatedField.getName().toUpperCase()+ "," + " m" + mEnclosingClass.getClassName() + "." + annotatedField.getName() + ");\n";
+        return "\t\taValues.put("+annotatedField.getName().toUpperCase()+ "," + " m" + mEnclosingClass.getClassName() + "." + annotatedField.getName() + ");\n";
     }
 
     protected String firstLetterToUpper(String word) {
