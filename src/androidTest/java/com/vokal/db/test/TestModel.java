@@ -2,12 +2,10 @@ package com.vokal.db.test;
 
 
 import com.vokal.codegen.Column;
-import com.vokal.codegen.Unique;
 import com.vokal.db.codegen.DataModel;
 
 public class TestModel extends DataModel {
 
-    @Unique
     @Column int     int1;
     @Column long    long1;
     @Column double  double1;

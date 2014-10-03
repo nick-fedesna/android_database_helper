@@ -197,35 +197,35 @@ public class DataModelTest extends ProviderTestCase2<SimpleContentProvider> {
 
     }
 
-//    public void testUniqueness() {
-//        Test2Model testModel = new Test2Model();
-//        testModel.boolean1 = false;
-//        testModel.double1 = 2.3;
-//        testModel.string1 = "test";
-//        testModel.long1 = 123123l;
-//        testModel.int1 = 12;
-//        testModel.save(mContext);
-//
-//        assertEquals(testModel.int1, 12);
-//
-//        Cursor c = getMockContentResolver().query(DatabaseHelper.getContentUri(Test2Model.class),null,null,null,null);
-//        assertTrue(c.moveToFirst());
-//        assertEquals(c.getCount(), 1);
-//
-//        Test2Model test2Model = new Test2Model();
-//        test2Model.boolean1 = true;
-//        test2Model.double1 = 3.4;
-//        test2Model.string1 = "test2";
-//        test2Model.long1 = 555444333;
-//        test2Model.int1 = 12;
-//        test2Model.save(mContext);
-//        assertEquals(test2Model.int1, 12);
-//
-//        Cursor c2 = getMockContentResolver().query(DatabaseHelper.getContentUri(Test2Model.class),null,null,null,null);
-//        ObjectCursor<Test2Model> cursor2 = new ObjectCursor<>(c2, Test2Model.class);
-//        assertTrue(c2.moveToFirst());
-//        assertEquals(c2.getCount(), 1);
-//        assertEquals(cursor2.getModel().double1, 3.4);
-//    }
+    public void testUniqueness() {
+        Test2Model testModel = new Test2Model();
+        testModel.boolean1 = false;
+        testModel.double1 = 2.3;
+        testModel.string1 = "test";
+        testModel.long1 = 123123l;
+        testModel.int1 = 12;
+        testModel.save(mContext);
+
+        assertEquals(testModel.int1, 12);
+
+        Cursor c = getMockContentResolver().query(DatabaseHelper.getContentUri(Test2Model.class),null,null,null,null);
+        assertTrue(c.moveToFirst());
+        assertEquals(c.getCount(), 1);
+
+        Test2Model test2Model = new Test2Model();
+        test2Model.boolean1 = true;
+        test2Model.double1 = 3.4;
+        test2Model.string1 = "test2";
+        test2Model.long1 = 555444333;
+        test2Model.int1 = 12;
+        test2Model.save(mContext);
+        assertEquals(test2Model.int1, 12);
+
+        Cursor c2 = getMockContentResolver().query(DatabaseHelper.getContentUri(Test2Model.class),null,null,null,null);
+        ObjectCursor<Test2Model> cursor2 = new ObjectCursor<>(c2, Test2Model.class);
+        assertTrue(c2.moveToFirst());
+        assertEquals(c2.getCount(), 1);
+        assertEquals(cursor2.getModel().double1, 3.4);
+    }
 
 }
