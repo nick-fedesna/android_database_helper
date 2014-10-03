@@ -11,7 +11,7 @@ import javax.tools.Diagnostic;
 
 import com.vokal.codegen.tools.*;
 
-@SupportedAnnotationTypes("com.vokal.codegen.Column")
+@SupportedAnnotationTypes({"com.vokal.codegen.Column", "com.vokal.codegen.Unique"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class ModelProcessor extends AbstractProcessor {
 
