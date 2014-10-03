@@ -20,6 +20,7 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.util.SparseArray;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,47 @@ public class ObjectCursor<T> extends CursorWrapper {
             mCache = null;
         }
         mFactory = factory;
+    }
+
+    public ObjectCursor(Cursor cursor, Class aModel) {
+        this(cursor, getCursorCreator(aModel));
+    }
+
+    private static <T> CursorCreator<T> getCursorCreator(Class<T> aModelClass) {
+        String className = aModelClass.getSimpleName();
+        CursorCreator creator = null;
+        try {
+            Field f = aModelClass.getField("CURSOR_CREATOR");
+            creator = (CursorCreator) f.get(null);
+        } catch (ClassCastException e) {
+            throw new IllegalStateException("ADHD protocol requires the object called TABLE_CREATOR " +
+                                                    "on class " + className + " to be a SQLiteTable.TableCreator");
+        } catch (NoSuchFieldException e) {
+            creator = getCursorCreatorFromHelper(aModelClass);
+            if (creator == null) {
+                throw new IllegalStateException("ADHD protocol requires a SQLiteTable.TableCreator " +
+                                                        "object called TABLE_CREATOR on class " + className);
+            }
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("ADHD protocol requires the TABLE_CREATOR object " +
+                                                    "to be accessible on class " + className);
+        } catch (NullPointerException e) {
+            throw new IllegalStateException("ADHD protocol requires the TABLE_CREATOR " +
+                                                    "object to be static on class " + className);
+        }
+        return creator;
+    }
+
+    private static <T> CursorCreator getCursorCreatorFromHelper(Class<T> aModelClass) {
+        CursorCreator creator = null;
+        try {
+            aModelClass = (Class<T>) Class.forName(aModelClass.getName() + "Helper");
+            Field f = aModelClass.getField("CURSOR_CREATOR");
+            creator = (CursorCreator) f.get(null);
+        } catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
+            return null;
+        }
+        return creator;
     }
 
     public List<T> getList() {

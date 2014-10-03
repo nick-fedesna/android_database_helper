@@ -25,8 +25,8 @@ public class SuperClass extends AbstractDataModel implements Model {
     }
 
     @Override
-    public void populateContentValue(ContentValues contentValues) {
-        mClass.populateContentValue(contentValues);
+    public void populateContentValues(ContentValues contentValues) {
+        mClass.populateContentValues(contentValues);
     }
 
 }

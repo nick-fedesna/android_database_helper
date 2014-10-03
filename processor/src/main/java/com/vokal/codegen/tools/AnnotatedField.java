@@ -29,7 +29,6 @@ public class AnnotatedField {
     }
 
     public String getSimpleType() {
-        System.out.println(mType.toString());
         return mType.toString().substring(mType.toString().lastIndexOf('.')+1);
     }
 

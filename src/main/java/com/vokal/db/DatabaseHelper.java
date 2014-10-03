@@ -198,17 +198,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Field f = aModelClass.getField("TABLE_CREATOR");
             creator = (SQLiteTable.TableCreator) f.get(null);
         } catch (ClassCastException e) {
+
             throw new IllegalStateException("ADHD protocol requires the object called TABLE_CREATOR " +
                                                     "on class " + className + " to be a SQLiteTable.TableCreator");
         } catch (NoSuchFieldException e) {
-            throw new IllegalStateException("ADHD protocol requires a SQLiteTable.TableCreator " +
-                                                    "object called TABLE_CREATOR on class " + className);
+            creator = getTableCreatorFromHelper(aModelClass);
+            if (creator == null) {
+                throw new IllegalStateException("ADHD protocol requires a SQLiteTable.TableCreator " +
+                                                        "object called TABLE_CREATOR on class " + className);
+            }
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("ADHD protocol requires the TABLE_CREATOR object " +
                                                     "to be accessible on class " + className);
         } catch (NullPointerException e) {
             throw new IllegalStateException("ADHD protocol requires the TABLE_CREATOR " +
                                                     "object to be static on class " + className);
+        }
+        return creator;
+    }
+
+    public static SQLiteTable.TableCreator getTableCreatorFromHelper(Class aModelClass) {
+        SQLiteTable.TableCreator creator = null;
+        try {
+            aModelClass = Class.forName(aModelClass.getName() + "Helper");
+            Field f = aModelClass.getField("TABLE_CREATOR");
+            creator = (SQLiteTable.TableCreator) f.get(null);
+        } catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
+            return null;
         }
         return creator;
     }

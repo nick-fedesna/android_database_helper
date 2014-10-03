@@ -43,8 +43,11 @@ public abstract class AbsWriter {
                 "import com.vokal.db.util.CursorCreator;",
                 "import com.vokal.db.util.CursorGetter;",
                 "import com.vokal.db.codegen.ModelHelper;",
-                "public class " + helperClassName + " implements ModelHelper {",
+                "import android.provider.BaseColumns;",
+                "public class " + helperClassName + " implements ModelHelper, BaseColumns {",
                 mEnclosingClass.getClassName() + " m" + mEnclosingClass.getClassName() + ";",
+                "",
+                "protected transient Long _id = -1L;",
                 "",
                 emitStaticStrings(annotatedFields),
                 "",
@@ -55,6 +58,8 @@ public abstract class AbsWriter {
                 emitCursorCreator(annotatedFields),
                 "",
                 emitSetObject(annotatedFields),
+                "",
+                "protected boolean hasId() {\nreturn _id != null && _id != -1;\n}",
                 "}"
         );
     }
@@ -67,6 +72,7 @@ public abstract class AbsWriter {
         for (AnnotatedField annotatedField : annotatedFields) {
             builder.append("model." + annotatedField.getName() + " = getter.get" + firstLetterToUpper(annotatedField.getSimpleType()) + "(" + annotatedField.getName().toUpperCase() + ");\n");
         }
+        builder.append("model.setId(getter.getLong(_ID));\n");
         builder.append("return model;\n}\n};\n");
 
         return builder.toString();
@@ -115,7 +121,7 @@ public abstract class AbsWriter {
 
     private String emitPopulateContentValue(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("@Override\npublic void populateContentValue(ContentValues aValues) {\n");
+        builder.append("@Override\npublic void populateContentValues(ContentValues aValues) {\nif (hasId()) aValues.put(_ID, _id);\n");
         for (AnnotatedField annotatedField : annotatedFields) {
             builder.append(emitSetters(annotatedField));
         }
