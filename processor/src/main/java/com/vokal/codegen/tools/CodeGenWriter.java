@@ -1,28 +1,25 @@
 package com.vokal.codegen.tools;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collection;
 import javax.tools.JavaFileObject;
 
 import com.google.common.base.Joiner;
 
-public abstract class AbsWriter {
-
-    protected static final String BASE_KEY = "BASE_KEY";
+public class CodeGenWriter {
 
     private final JavaFileObject mJavaFileObject;
     private final String         mSuffix;
     private final EnclosingClass mEnclosingClass;
 
-    public AbsWriter(JavaFileObject jfo, String suffix, EnclosingClass enclosingClass) {
+    public CodeGenWriter(JavaFileObject jfo, String suffix, EnclosingClass enclosingClass) {
         this.mJavaFileObject = jfo;
         this.mSuffix = suffix;
         this.mEnclosingClass = enclosingClass;
     }
 
     public void withFields(Collection<AnnotatedField> annotatedFields) throws IOException {
-        Writer writer = mJavaFileObject.openWriter();
+        java.io.Writer writer = mJavaFileObject.openWriter();
         writer.write(brewJava(annotatedFields));
         writer.flush();
         writer.close();
@@ -30,10 +27,7 @@ public abstract class AbsWriter {
 
     private String brewJava(Collection<AnnotatedField> annotatedFields) {
         String classPackage = mEnclosingClass.getClassPackage();
-        String helperClassName = mEnclosingClass.getClassName() + "Helper" ;//mSuffix;
-        String fqHelperClassName = classPackage + "." + helperClassName;
-
-        String type = getWriterType();
+        String helperClassName = mEnclosingClass.getClassName() + mSuffix;
 
         return Joiner.on("\n").join(
                 "// Generated code from CodeGen. Do not modify!",
@@ -62,9 +56,12 @@ public abstract class AbsWriter {
 
     private String emitCursorCreator(Collection<AnnotatedField> annotatedFields) {
         StringBuilder builder = new StringBuilder();
-        builder.append("\tpublic static final CursorCreator<" + mEnclosingClass.getClassName() + "> CURSOR_CREATOR = new CursorCreator<" + mEnclosingClass.getClassName() + ">() {\n" +
-                       "\t\tpublic " + mEnclosingClass.getClassName() + " createFromCursorGetter(CursorGetter getter) {\n" +
-                       "\t\t\t" + mEnclosingClass.getClassName() + " model = new " + mEnclosingClass.getClassName() + "();\n");
+        builder.append("\tpublic static final CursorCreator<").append(mEnclosingClass.getClassName()).append(
+                "> CURSOR_CREATOR = new CursorCreator<").append(mEnclosingClass.getClassName()).append(
+                ">() {\n").append("\t\tpublic ").append(mEnclosingClass.getClassName()).append(
+                " createFromCursorGetter(CursorGetter getter) {\n").append("\t\t\t").append(
+                mEnclosingClass.getClassName()).append(" model = new ").append(mEnclosingClass.getClassName()).append(
+                "();\n");
         for (AnnotatedField annotatedField : annotatedFields) {
             builder.append("\t\t\tmodel." + annotatedField.getName() + " = getter.get" + firstLetterToUpper(annotatedField.getSimpleType()) + "(" + annotatedField.getName().toUpperCase() + ");\n");
         }
@@ -131,8 +128,5 @@ public abstract class AbsWriter {
     protected String firstLetterToUpper(String word) {
         return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
-
-    protected abstract String getWriterType();
-
 
 }

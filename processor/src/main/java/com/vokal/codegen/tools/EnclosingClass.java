@@ -6,16 +6,11 @@ public class EnclosingClass {
 
     private final String      mClassPackage;
     private final String      mClassName;
-    private final String      mTargetClass;
-    private final String      mParentEnclosingClass;
     private final TypeElement mElement;
 
-    public EnclosingClass(String aClassPackage, String aClassName, String aTargetClass,
-                   String aParentEnclosingClass, TypeElement aElement) {
+    public EnclosingClass(String aClassPackage, String aClassName, TypeElement aElement) {
         mClassPackage = aClassPackage;
         mClassName = aClassName;
-        mTargetClass = aTargetClass;
-        mParentEnclosingClass = aParentEnclosingClass;
         mElement = aElement;
     }
 
@@ -25,14 +20,6 @@ public class EnclosingClass {
 
     public String getClassName() {
         return mClassName;
-    }
-
-    public String getTargetClass() {
-        return mTargetClass;
-    }
-
-    public String getParentEnclosingClass() {
-        return mParentEnclosingClass;
     }
 
     public TypeElement getElement() {
@@ -50,10 +37,8 @@ public class EnclosingClass {
 
         if (!mClassName.equals(that.mClassName))
             return false;
-        if (!mClassPackage.equals(that.mClassPackage))
-            return false;
+        return mClassPackage.equals(that.mClassPackage);
 
-        return true;
     }
 
     @Override

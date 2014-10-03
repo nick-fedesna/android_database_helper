@@ -7,7 +7,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 import com.vokal.codegen.tools.*;
@@ -15,6 +14,8 @@ import com.vokal.codegen.tools.*;
 @SupportedAnnotationTypes("com.vokal.codegen.Column")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class ModelProcessor extends AbstractProcessor {
+
+    public static final String SUFFIX = "Helper";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -28,9 +29,7 @@ public class ModelProcessor extends AbstractProcessor {
     }
 
     private void write(Map<EnclosingClass, Collection<AnnotatedField>> fieldsByEnclosingClass) {
-        WriterFactory
-                writerFactory = new WriterFactory(elementUtils(), typeUtils(), filer(), "$$Model");
-
+        WriterFactory writerFactory = new WriterFactory(filer(), SUFFIX);
         for (EnclosingClass enclosingClass : fieldsByEnclosingClass.keySet()) {
             try {
                 writerFactory.writeClass(enclosingClass)
@@ -46,7 +45,7 @@ public class ModelProcessor extends AbstractProcessor {
 
     private Map<EnclosingClass, Collection<AnnotatedField>> classesWithFieldsAnnotatedWith(
             Set<? extends Element> annotatedElements) {
-        return new AnnotationsConverter(messager(), elementUtils(), typeUtils())
+        return new AnnotationsConverter(messager(), elementUtils())
                 .convert(annotatedElements);
     }
 
@@ -57,10 +56,6 @@ public class ModelProcessor extends AbstractProcessor {
 
     private Elements elementUtils() {
         return processingEnv.getElementUtils();
-    }
-
-    private Types typeUtils() {
-        return processingEnv.getTypeUtils();
     }
 
     private Filer filer() {

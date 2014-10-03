@@ -3,14 +3,12 @@ package com.vokal.codegen.tools;
 import java.util.*;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
-import javax.lang.model.type.*;
-import javax.lang.model.util.*;
+import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.vokal.codegen.Column;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Multimaps.index;
@@ -19,12 +17,10 @@ public class AnnotationsConverter {
 
     private final Messager messager;
     private final Elements elementUtils;
-    private final Types    typeUtils;
 
-    public AnnotationsConverter(Messager messager, Elements elementUtils, Types typeUtils) {
+    public AnnotationsConverter(Messager messager, Elements elementUtils) {
         this.messager = messager;
         this.elementUtils = elementUtils;
-        this.typeUtils = typeUtils;
     }
 
     public Map<EnclosingClass, Collection<AnnotatedField>> convert(
@@ -60,10 +56,6 @@ public class AnnotationsConverter {
     }
 
     private class ToAnnotatedField implements Function<Element, AnnotatedField> {
-
-//    final TypeToBundleMethodMap
-//        typeToBundleMethodMap = new TypeToBundleMethodMap(elementUtils, typeUtils);
-
         @Override
         public AnnotatedField apply(Element aFieldElement) {
             return new AnnotatedField(aFieldElement);
@@ -84,8 +76,7 @@ public class AnnotationsConverter {
 
     private class ByEnclosingClass implements Function<AnnotatedField, EnclosingClass> {
 
-        private final Set<String> ignoredClasses   = new HashSet<String>();
-        private final Set<String> annotatedClasses = new HashSet<String>();
+        private final Set<String> annotatedClasses = new HashSet<>();
 
         private ByEnclosingClass(Set<String> erasedEnclosingClasses) {
             annotatedClasses.addAll(erasedEnclosingClasses);
@@ -97,53 +88,7 @@ public class AnnotationsConverter {
             String classPackage = getPackageName(classType);
             String targetClassName = getClassName(classType, classPackage);
             String sanitizedClassName = sanitize(targetClassName);
-            String parentFqcn = findParentFqcn(classType);
-            return new EnclosingClass(classPackage, sanitizedClassName, targetClassName, parentFqcn, classType);
-        }
-
-        private String findParentFqcn(TypeElement classType) {
-            TypeMirror type;
-            while (true) {
-                type = classType.getSuperclass();
-                if (type.getKind() == TypeKind.NONE) {
-                    return null;
-                }
-                classType = (TypeElement) ((DeclaredType) type).asElement();
-                String erasedClassName = classType.toString();
-
-                if (ignoredClasses.contains(erasedClassName)) {
-                    continue;
-                }
-
-                if (annotatedClasses.contains(erasedClassName)) {
-                    return getFqcn(classType);
-                }
-
-                if (isAnnotatedFromAnotherSourceSet(classType)) {
-                    annotatedClasses.add(erasedClassName);
-                    return getFqcn(classType);
-                }
-
-                ignoredClasses.add(erasedClassName);
-            }
-        }
-
-        private boolean isAnnotatedFromAnotherSourceSet(TypeElement query) {
-            List<VariableElement> fields = ElementFilter.fieldsIn(query.getEnclosedElements());
-
-            for (Element e : fields) {
-                for (AnnotationMirror am : e.getAnnotationMirrors()) {
-                    if (am.getAnnotationType().asElement().toString().equals(Column.class.getName())) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private String getFqcn(TypeElement classType) {
-            String packageName = getPackageName(classType);
-            return packageName + "." + sanitize(getClassName(classType, packageName));
+            return new EnclosingClass(classPackage, sanitizedClassName, classType);
         }
 
         private String getPackageName(TypeElement classType) {

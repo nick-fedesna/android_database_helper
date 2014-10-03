@@ -24,10 +24,6 @@ public class AnnotatedField {
         return mName;
     }
 
-    public TypeMirror getType() {
-        return mType;
-    }
-
     public String getSimpleType() {
         return mType.toString().substring(mType.toString().lastIndexOf('.')+1);
     }
