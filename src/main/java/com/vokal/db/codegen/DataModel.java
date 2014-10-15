@@ -15,11 +15,9 @@ public class DataModel extends AbstractDataModel implements Model {
 
     public DataModel() {
         try {
-            Log.e("HERE", getClass().getName() + "Helper");
             mClass = ((ModelHelper) Class.forName(getClass().getName() + "Helper").newInstance());
             mClass.setObject(this);
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            Log.e("HERE2", e.getMessage());
             e.printStackTrace();
         }
     }
