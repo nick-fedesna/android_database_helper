@@ -32,6 +32,7 @@ public class ModelProcessor extends AbstractProcessor {
         for (TypeElement annotation : annotations) {
             if (annotation.getQualifiedName().toString().equals("com.vokal.codegen.Column")) {
                 write(classesWithFieldsAnnotatedWith(roundEnv.getElementsAnnotatedWith(annotation)),
+                      mUniqueAnnotation == null ? null :
                       classesWithFieldsAnnotatedWith(roundEnv.getElementsAnnotatedWith(mUniqueAnnotation)));
             }
         }
@@ -46,6 +47,7 @@ public class ModelProcessor extends AbstractProcessor {
             try {
                 writerFactory.writeClass(enclosingClass)
                         .withFields(columnFieldsByEnclosingClass.get(enclosingClass),
+                                    uniqueFieldsByEnclosingClass == null ? null :
                                     uniqueFieldsByEnclosingClass.get(enclosingClass));
             } catch (IOException e) {
                 messager().printMessage(Diagnostic.Kind.ERROR,

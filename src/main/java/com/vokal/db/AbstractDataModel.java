@@ -138,8 +138,16 @@ public abstract class AbstractDataModel implements DataModelInterface, BaseColum
         return result;
     }
 
-    private boolean hasId() {
+    public boolean hasId() {
         return _id > 0;
+    }
+
+    public long getId() {
+        return _id;
+    }
+
+    public void setId(long id) {
+        _id = id;
     }
 
     @Override

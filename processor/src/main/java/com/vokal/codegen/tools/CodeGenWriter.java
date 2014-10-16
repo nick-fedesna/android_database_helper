@@ -83,8 +83,8 @@ public class CodeGenWriter {
         }
         builder.append("\t\t\t;\n\t\t\treturn aBuilder.build();\n\t\t}\n\n");
         builder.append("\t\t@Override\n" +
-                       "\t\tpublic SQLiteTable updateTableSchema(SQLiteTable.Updater aUpdater, int aOldVersion) {\n" +
-                       "\t\t\treturn aUpdater.recreate();\n" +
+                       "\t\tpublic SQLiteTable updateTableSchema(SQLiteTable.Upgrader aUpgrader, int aOldVersion) {\n" +
+                       "\t\t\treturn aUpgrader.recreate().build();\n" +
                        "\t\t}\n\t};");
 
         return builder.toString();
